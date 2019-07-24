@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>cn.selinx</groupId>
+    <artifactId>springboot-hello</artifactId>
+    <version>0.0.1</version>
+    <packaging>jar</packaging>
+
+    <name>springboot-hello</name>
+    <description>This is a demo of Spring Boot 1.5x</description>
+
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>1.5.21.RELEASE</version>
+        <relativePath/>
+    </parent>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <dependencies>
+
+        <!-- Spring Boot -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+        <!-- 端点endPoint 查看性能指标信息 /metrics路径 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+
+        <!-- 汇总端点信息 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-hateoas</artifactId>
+        </dependency>
+
+        <!--HAL Browser 图形化查看界面-->
+        <dependency>
+            <groupId>org.webjars</groupId>
+            <artifactId>hal-browser</artifactId>
+        </dependency>
+
+        <!-- actuator的文档说明 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-actuator-docs</artifactId>
+        </dependency>
+
+        <!-- zookeeper -->
+        <dependency>
+            <groupId>org.apache.zookeeper</groupId>
+            <artifactId>zookeeper</artifactId>
+            <version>3.4.14</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-log4j12</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+    </dependencies>
+
+
+    <build>
+        <plugins>
+            <!-- spring boot maven 生成Jar包默认名称是：${project.build.finalName} 等同于 ${project.artifactId}-${project.version}.jar-->
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+
+            <!-- docker maven -->
+            <plugin>
+                <groupId>com.spotify</groupId>
+                <artifactId>docker-maven-plugin</artifactId>
+                <version>1.2.0</version>
+                <configuration>
+                    <!-- Docker镜像名称：仓库名/镜像名:标签名-->
+                    <imageName>${project.groupId}/${project.artifactId}:${project.version}</imageName>
+                    <!-- Dockerfile 所在的目录 -->
+                    <dockerDirectory>${project.build.outputDirectory}/docker</dockerDirectory>
+                    <resources>
+                        <resource>
+                            <!--指定需要复制的根目录-->
+                            <directory>${project.build.directory}</directory>
+                            <!--指定需要复制的文件-->
+                            <include>${project.build.finalName}.jar</include>
+                        </resource>
+                    </resources>
+                </configuration>
+            </plugin>
+
+            <!-- maven git
+            <plugin>
+                <groupId>pl.project13.maven</groupId>
+                <artifactId>git-commit-id-plugin</artifactId>
+            </plugin>
+            -->
+        </plugins>
+    </build>
+
+</project>

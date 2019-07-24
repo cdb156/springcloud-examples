@@ -1,0 +1,47 @@
+---
+# info 信息,springboot 将占位符修改为@...@格式
+info:
+  app:
+    groupId: @project.groupId@
+    artifactId: @project.artifactId@
+    version: @project.version@
+
+# web端口
+server:
+  port: 8081
+
+# management
+management:
+  security:
+    enabled: false
+
+# spring boot admin client
+spring:
+  profiles:
+    active: secure
+  boot:
+    admin:
+      client:
+        name: HelloDocker
+
+# 非安全模式
+---
+spring:
+  profiles: insecure
+  boot:
+    admin:
+      url: http://localhost:8080
+
+# 安全模式
+---
+spring:
+  profiles: secure
+  boot:
+    admin:
+      url: http://localhost:8080
+      username: admin
+      password: 123456
+# 日志配置
+logging:
+  level:
+    org.springframework.security: DEBUG

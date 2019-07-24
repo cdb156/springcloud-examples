@@ -1,0 +1,31 @@
+# info 信息,springboot 将占位符修改为@...@格式
+info:
+  app:
+    groupId: @project.groupId@
+    artifactId: @project.artifactId@
+    name: @project.name@
+    description: @project.description@
+    version: @project.version@
+#  git:
+#    branch: @git.branch@
+#    commit:
+#      id: @git.commit.id@
+#      time: @git.commit.time@
+
+# 安全管理false
+management:
+  security:
+    enabled: false
+
+# 开启所有监控端口
+endpoints:
+  enabled: true
+  health:
+    sensitive: true # 磁盘空间不暴露
+
+# 服务注册信息
+registry:
+  servers: 127.0.0.1:2181
+server:
+  address: 127.0.0.1
+  port: 8081
