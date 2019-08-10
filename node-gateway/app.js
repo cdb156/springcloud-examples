@@ -77,7 +77,7 @@ app.all('*',function (req,res) {
             }
             console.log('serviceAddress: %s',serviceAddress);
             if(!serviceAddress){
-                console.log('service address is not exist');
+                console.log('server address is not exist');
                 res.end();
                 return;
             }

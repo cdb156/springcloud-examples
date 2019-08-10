@@ -17,6 +17,12 @@
         <relativePath />
     </parent>
 
+    <!-- 指定版本依赖 -->
+    <properties>
+        <spring.version>5.0.15.RELEASE</spring.version>
+        <sharding-sphere.version>4.0.0-RC1</sharding-sphere.version>
+    </properties>
+
     <!-- 提供SpringCloud依赖 -->
     <dependencyManagement>
         <dependencies>
@@ -27,8 +33,18 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+
+            <dependency>
+                <groupId>com.alibaba.cloud</groupId>
+                <artifactId>spring-cloud-alibaba-dependencies</artifactId>
+                <version>2.1.0.RELEASE</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
         </dependencies>
     </dependencyManagement>
+
+
 
 
 
@@ -38,7 +54,9 @@
         <module>springboot-docker</module>
         <module>springboot-monitor</module>
         <module>springcloud-discovery-eureka</module>
+        <module>springcloud-server-provider</module>
         <module>springcloud-gateway-zuul</module>
+        <module>springcloud-consumer-openfeign</module>
     </modules>
 
 

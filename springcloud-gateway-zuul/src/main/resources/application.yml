@@ -1,0 +1,21 @@
+spring:
+  application:
+    name: @project.artifactId@
+
+server:
+  port: 9000
+
+# eureka 注册中心
+eureka:
+  instance:
+    prefer-ip-address: true
+  client:
+    service-url:
+      defaultZone: http://master.docker:8761/eureka/,http://master.docker:8762/eureka/,http://master.docker:8763/eureka/
+
+# zuul 配置路由，默认路由配置：http://ZUUL_HOST:ZUUL_PORT/微服务在Eureka上的serviceId/**
+#zuul:
+#  routes:
+#    bms-1:
+#      path: /server/**
+#      serviceId: springcloud-server-bms

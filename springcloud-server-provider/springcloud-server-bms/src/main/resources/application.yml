@@ -1,0 +1,91 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: @project.artifactId@
+  profiles:
+    active: cluster
+
+
+# eureka 注册中心
+eureka:
+  instance:
+    hostname: 192.168.199.222
+  client:
+    service-url:
+      defaultZone: http://master.docker:8761/eureka/,http://master.docker:8762/eureka/,http://master.docker:8763/eureka/
+
+---
+# 数据库-主库读写
+spring:
+  profiles: single
+  datasource:
+    url: jdbc:mysql://master.docker:3306/springcloud-example-bms?useUnicode=true&characterEncoding=UTF-8&useSSL=false
+    username: root
+    password: 123456
+    driver-class-name: com.mysql.jdbc.Driver
+    type: com.zaxxer.hikari.HikariDataSource
+    hikari:
+      auto-commit: true
+      connection-timeout: 30000
+      connection-test-query: SELECT 1
+      minimum-idle: 5
+      maximum-pool-size: 20
+      idle-timeout: 30000
+      pool-name: DateSourceHikariCP
+
+  jpa:
+    database: mysql
+
+
+---
+# 数据库-主从读写分离,HikariDataSource 使用jdbc-url,其他使用url
+spring:
+  profiles: cluster
+  shardingsphere:
+    datasource:
+      names: master,slave0
+      master:
+        type: com.zaxxer.hikari.HikariDataSource
+        driver-class-name: com.mysql.jdbc.Driver
+        jdbc-url: jdbc:mysql://master.docker:3306/springcloud-example-bms?useUnicode=true&characterEncoding=UTF-8&useSSL=false
+        username: root
+        password: 123456
+      slave0:
+        type: com.zaxxer.hikari.HikariDataSource
+        driver-class-name: com.mysql.jdbc.Driver
+        jdbc-url: jdbc:mysql://master.docker:3307/springcloud-example-bms?useUnicode=true&characterEncoding=UTF-8&useSSL=false
+        username: root
+        password: 123456
+    masterslave:
+      name: ms
+      load-balance-algorithm-type: round_robin
+      master-data-source-name: master
+      slave-data-source-names: slave0
+    props:
+      sql:
+        show: true
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

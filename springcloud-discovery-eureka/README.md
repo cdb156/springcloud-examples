@@ -193,7 +193,7 @@ eureka:
 
 ```shell
 # 打包编译
-mvn -DskitTests -U clean package
+mvn -DskipTests -U clean package
 # 第一台机器
 java -server -Xms128m -Xmx128m -jar target/springcloud-discovery-eureka-0.0.1.jar --spring.profiles.active=cluster-1
 # 第二台机器
@@ -207,8 +207,116 @@ java -server -Xms128m -Xmx128m -jar target/springcloud-discovery-eureka-0.0.1.ja
 #### SpringBoot打包和运行命令说明
 
 ```shell
-mvn -DskitTests -U clean package
+mvn -DskipTests -U clean package
 # 指定堆大小，以服务器模式运行，指定端口,指定激活profiles
 java -server -Xms128m -Xmx128m -jar target/springcloud-discovery-eureka-0.0.1.jar --server.port=8080 --spring.profiles.active=xxx
+# 启动linux机器
+java -server -Xms128m -Xmx128m -jar springcloud-discovery-eureka-0.0.1.jar --spring.profiles.active=cluster-1 &
 ```
 
+
+
+## client客户端配置
+
+### pom.xml配置
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>springcloud-server-provider</artifactId>
+        <groupId>cn.selinx</groupId>
+        <version>0.0.1</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>cn.selinx</groupId>
+    <artifactId>springcloud-server-bms</artifactId>
+    <version>0.0.1</version>
+
+    <dependencies>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+        <!-- Spring Cloud Eureka Client-->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+    </dependencies>
+    
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>
+```
+
+### 客户端配置
+
+基于eureka注册服务
+
+```java
+@SpringBootApplication
+@EnableEurekaClient
+public class Application {
+    public static void main(String[] args) {
+        SpringApplication.run(Application.class, args);
+    }
+}
+```
+
+基于其他注册服务
+
+```java
+@SpringBootApplication
+@EnableDiscoveryClient
+public class Application {
+    public static void main(String[] args) {
+        SpringApplication.run(Application.class, args);
+    }
+}
+```
+
+采用`@SpringCloudApplication`注解
+
+```
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
+@Documented
+@Inherited
+@SpringBootApplication
+@EnableDiscoveryClient
+@EnableCircuitBreaker
+public @interface SpringCloudApplication {
+}
+```
+
+服务发现注解说明
+
+> Spring Cloud feign 使用中在使用服务发现时采用注解：@EnableDiscoveryClient 和 @EnableEurekaClient
+
+spring cloud中discovery service有许多种实现（eureka、consul、zookeeper等等）。
+
+* @EnableEurekaClient基于spring-cloud-netflix。
+  其实用更简单的话来说，就是如果选用的注册中心是eureka，那么就推荐@EnableEurekaClient
+
+* @EnableDiscoveryClient基于spring-cloud-commons, ，如果是其他的注册中心，那么推荐使用@EnableDiscoveryClient。
+  

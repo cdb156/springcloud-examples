@@ -58,7 +58,7 @@ public class ServiceRegistryImpl implements ServiceRegistry, Watcher {
             String servicePath = registryPath + "/" + serviceName;
             if (zk.exists(servicePath, false) == null) {
                 zk.create(servicePath, null, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
-                logger.debug("create service node：{}", servicePath);
+                logger.debug("create server node：{}", servicePath);
             }
             // 创建地址节点（零时顺序节点）
             String addressPath = servicePath + "/address-";
