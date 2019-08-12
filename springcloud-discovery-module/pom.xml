@@ -8,16 +8,17 @@
         <version>0.0.1</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-
-    <groupId>cn.selinx</groupId>
-    <artifactId>springcloud-provider-bms</artifactId>
-    <version>0.0.1</version>
     <packaging>pom</packaging>
 
-    <modules>
-        <module>springcloud-provider-bms</module>
-    </modules>
+    <groupId>cn.selinx</groupId>
+    <artifactId>springcloud-discovery-module</artifactId>
+    <version>0.0.1</version>
+    <name>SpringCloud Discovery Module</name>
+    <description>微服务的服务注册中心</description>
 
+    <modules>
+        <module>springcloud-discovery-eureka</module>
+    </modules>
 
 
 </project>

@@ -1,0 +1,24 @@
+spring:
+  application:
+    name: @project.artifactId@
+
+server:
+  port: 9100
+
+# eureka 注册中心
+eureka:
+  client:
+    service-url:
+      defaultZone: http://master.docker:8761/eureka/,http://master.docker:8762/eureka/,http://master.docker:8763/eureka/
+
+# endpoints节点开放： 默认只开启了health、info两个节点
+# 开启所有为了访问：/actuator/hystrix.stream
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+turbine:
+  app-config: springcloud-consumer-openfeign
+
+

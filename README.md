@@ -8,16 +8,17 @@ Spring Cloud 微服务示例
 
 ## 一、工程说明
 
-* [node-gateway](https://github.com/cjp1016/springcloud-examples/tree/master/node-gateway) 基于nodejs的网关服务开发，调用zk获取springboot-hello提供的服务。
-* [springboot-docker](https://github.com/cjp1016/springcloud-examples/tree/master/springboot-docker) spring-boot-admin-client 1.5.x和基于docker远程部署示例。
-* [springboot-hello](https://github.com/cjp1016/springcloud-examples/tree/master/springboot-hello) 简单的服务端，采用zk注册服务，提供客户端调用。
-* [springboot-monitor](https://github.com/cjp1016/springcloud-examples/tree/master/springboot-monitor) spring-boot-admin-server 1.5.x 监控服务端。
-* [springcloud-discovery-eureka](https://github.com/cjp1016/springcloud-examples/tree/master/springcloud-discovery-eureka) springcloud-discovery-eureka 基于Eureka服务发现的服务端，推荐集群模式
-* [springcloud-gateway-zuul](https://github.com/cjp1016/springcloud-examples/tree/master/springcloud-gateway-zuul)  基于Zuul和Eureka客户端的网关服务，介绍Zuul网关的特点。
-* [springcloud-server-provider](https://github.com/cjp1016/springcloud-examples/tree/master/springcloud-server-provider) 基于Eureka、OpenFeign的微服务集合，各服务调用采用OpenFeign。
-* [springcloud-consumer-openfeign](https://github.com/cjp1016/springcloud-examples/tree/master/springcloud-consumer-openfeign) 基于OpenFeign的微服务调用的示例代码，介绍openfeign使用。
+### 模块说明
 
-整体架构图：
+- [springcloud-discovery-module](https://github.com/cjp1016/springcloud-examples/tree/master/springcloud-discovery-module/) : 微服务注册中心模块：Eureka、Consul
+- [springcloud-gateway-module](https://github.com/cjp1016/springcloud-examples/tree/master/springcloud-gateway-module/) : 微服务网关模块：Zuul、Gateway
+- [springcloud-monitor-module](https://github.com/cjp1016/springcloud-examples/tree/master/springcloud-monitor-module/) : 微服务监控模块
+- [springcloud-server-consumer](https://github.com/cjp1016/springcloud-examples/tree/master/springcloud-server-consumer) : 微服务消费者
+- [springcloud-server-provider](https://github.com/cjp1016/springcloud-examples/tree/master/springcloud-server-provider/) : 微服务提供者
+
+
+
+### 整体架构图
 
 ![spring-cloud-netflix](images/spring-cloud-netflix.png)
 

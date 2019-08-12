@@ -46,17 +46,12 @@
 
 
 
-
-
-
     <modules>
-        <module>springboot-hello</module>
-        <module>springboot-docker</module>
-        <module>springboot-monitor</module>
-        <module>springcloud-discovery-eureka</module>
         <module>springcloud-server-provider</module>
-        <module>springcloud-gateway-zuul</module>
-        <module>springcloud-consumer-openfeign</module>
+        <module>springcloud-gateway-module</module>
+        <module>springcloud-discovery-module</module>
+        <module>springcloud-server-consumer</module>
+        <module>springcloud-monitor-module</module>
     </modules>
 
 

@@ -8,16 +8,18 @@
         <version>0.0.1</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-
-    <groupId>cn.selinx</groupId>
-    <artifactId>springcloud-provider-bms</artifactId>
-    <version>0.0.1</version>
     <packaging>pom</packaging>
 
-    <modules>
-        <module>springcloud-provider-bms</module>
-    </modules>
+    <groupId>cn.selinx</groupId>
+    <artifactId>springcloud-gateway-module</artifactId>
+    <version>0.0.1</version>
 
+    <name>SpringCloud-Gateway-Module</name>
+    <description>微服务的网关集合</description>
+
+    <modules>
+        <module>springcloud-gateway-zuul</module>
+    </modules>
 
 
 </project>
