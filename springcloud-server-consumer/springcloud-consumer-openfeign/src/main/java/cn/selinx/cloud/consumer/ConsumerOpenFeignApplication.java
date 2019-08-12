@@ -10,7 +10,7 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
  * @since 2019/8/8 22:12
  */
 @SpringBootApplication
-@EnableFeignClients
+//@EnableFeignClients
 @EnableEurekaClient
 public class ConsumerOpenFeignApplication {
 

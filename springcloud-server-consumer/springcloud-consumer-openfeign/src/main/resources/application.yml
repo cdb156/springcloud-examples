@@ -9,5 +9,6 @@ server:
 eureka:
   client:
     service-url:
-      defaultZone: http://master.docker:8761/eureka/,http://master.docker:8762/eureka/,http://master.docker:8763/eureka/
+      defaultZone: http://localhost:8761/eureka/
+#      defaultZone: http://master.docker:8761/eureka/,http://master.docker:8762/eureka/,http://master.docker:8763/eureka/
 

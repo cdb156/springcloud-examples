@@ -1,11 +1,30 @@
+# info 信息,springboot 将占位符修改为@...@格式
+info:
+  app:
+    groupId: @project.groupId@
+    artifactId: @project.artifactId@
+    version: @project.version@
+
 # 默认模式：端口 8761
 server:
   port: 8761
 
-# 服务信息
+# 服务信息 # 忽略docker,veth,Virtual开头的网卡
 spring:
   application:
     name: @project.artifactId@
+  cloud:
+    inetutils:
+      ignored-interfaces: docker.*,veth.*,Virtual.*
+
+
+# eureka 客户端配置，显示ip
+eureka:
+  instance:
+    prefer-ip-address: true
+  client:
+    fetch-registry: false
+    register-with-eureka: false
 
 ---
 # 单机模式
@@ -21,6 +40,7 @@ eureka:
   client:
     service-url:
       defaultZone: http://localhost:8080/eureka/
+
 
 
 ######--------集群模式-------######
