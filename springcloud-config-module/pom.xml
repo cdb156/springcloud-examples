@@ -6,19 +6,19 @@
         <artifactId>springcloud-examples</artifactId>
         <groupId>cn.selinx</groupId>
         <version>0.0.1</version>
+        <relativePath>../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>cn.selinx</groupId>
     <artifactId>springcloud-config-module</artifactId>
     <version>0.0.1</version>
-    <modules>
-        <module>springcloud-config-server</module>
-    </modules>
     <packaging>pom</packaging>
 
     <name>SpringCloud Config Module</name>
     <description>微服务的配置中心</description>
 
-
+    <modules>
+        <module>springcloud-config-server</module>
+    </modules>
 </project>
