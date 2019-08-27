@@ -1,0 +1,37 @@
+spring:
+  application:
+    name: hello-server
+
+
+# eureka 注册
+eureka:
+  instance:
+    prefer-ip-address: true
+  client:
+    service-url:
+      defaultZone: http://192.168.18.110:8761/eureka/
+
+# 不同profile运行集群
+---
+spring:
+  profiles: s0
+server:
+  port: 8090
+
+---
+spring:
+  profiles: s1
+server:
+  port: 8091
+
+---
+spring:
+  profiles: s2
+server:
+  port: 8092
+
+---
+spring:
+  profiles: s2
+server:
+  port: 8093

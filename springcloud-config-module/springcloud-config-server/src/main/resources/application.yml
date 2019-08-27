@@ -1,0 +1,54 @@
+spring:
+  application:
+    name: springcloud-config-sever
+  profiles:
+    active: git
+
+server:
+  port: 8888
+
+# management 开启端口
+management:
+  server:
+    port: 8880
+    ssl:
+      enabled: false
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+  endpoint:
+    shutdown:
+      enabled: true
+
+# eureka 注册中心
+eureka:
+  instance:
+    prefer-ip-address: true
+  client:
+    service-url:
+      defaultZone: http://127.0.0.1:8761/eureka/
+
+
+# git 方式
+---
+spring:
+  profiles: git
+  cloud:
+    config:
+      server:
+        git:
+          uri : https://github.com/cjp1016/springcloud-config-repo
+
+
+# native 方式，目录需以/结尾
+
+---
+spring:
+  profiles: native
+  cloud:
+    config:
+      server:
+        native:
+          search-locations: D:/config-file/config-repo-native/
+          default-label: branch

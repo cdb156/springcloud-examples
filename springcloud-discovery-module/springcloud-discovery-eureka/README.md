@@ -139,7 +139,7 @@ eureka:
 -Dspring.profiles.active=singleton
 ```
 
-![eureka-singleton.png](/images/eureka-singleton.png)
+![eureka-singleton.png](images/eureka-singleton.png)
 
 
 
@@ -205,9 +205,11 @@ java -server -Xms128m -Xmx128m -jar target/springcloud-discovery-eureka-0.0.1.ja
 java -server -Xms128m -Xmx128m -jar target/springcloud-discovery-eureka-0.0.1.jar --spring.profiles.active=cluster-3
 ```
 
-![eureka-cluster](/images/eureka-cluster.png)
+![eureka-cluster](images/eureka-cluster.png)
 
-#### SpringBoot打包和运行命令说明
+#### SpringBoot打包和运行命令说明 
+
+多网卡原理看[HostInfoEnvironmentPostProcessor](#HostInfoEnvironmentPostProcessor)
 
 ```shell
 mvn -DskipTests -U clean package
@@ -215,6 +217,9 @@ mvn -DskipTests -U clean package
 java -server -Xms128m -Xmx128m -jar target/springcloud-discovery-eureka-0.0.1.jar --server.port=8080 --spring.profiles.active=xxx
 # 启动linux机器
 java -server -Xms128m -Xmx128m -jar springcloud-discovery-eureka-0.0.1.jar --spring.profiles.active=cluster-1 &
+
+# 多网卡忽略配置，在commandLineArgs,需要添加optionArgs，采用--开头
+java -jar springcloud-discovery-eureka-0.0.1.jar --spring.cloud.inetutils.ignoredInterfaces=docker.*,veth.*,Virtual.* 
 ```
 
 
@@ -498,6 +503,48 @@ public EurekaInstanceConfigBean eurekaInstanceConfigBean(InetUtils inetUtils,
 	return instance;
 }
 ```
+
+#### HostInfoEnvironmentPostProcessor
+
+读取HostInfo信息，在win10，虚拟机开启多网卡的情况下，存在问题。因为他加载环境变量早与`ConfigFileApplicationListener`，所以在application.yml配置`spring.cloud.inetutils.ignoredInterfaces=docker.*,veth.*,Virtual.*` 无效，只能通过环境变量或者 --x.xxx.x=m 方式配置命令行参数。详情看[SpringBoot打包和运行命令说明](#SpringBoot打包和运行命令说明)
+
+```java
+public class HostInfoEnvironmentPostProcessor
+		implements EnvironmentPostProcessor, Ordered {
+
+	// Before ConfigFileApplicationListener
+	private int order = ConfigFileApplicationListener.DEFAULT_ORDER - 1;
+
+	@Override
+	public int getOrder() {
+		return this.order;
+	}
+
+	@Override
+	public void postProcessEnvironment(ConfigurableEnvironment environment,
+			SpringApplication application) {
+		InetUtils.HostInfo hostInfo = getFirstNonLoopbackHostInfo(environment);
+		LinkedHashMap<String, Object> map = new LinkedHashMap<>();
+		map.put("spring.cloud.client.hostname", hostInfo.getHostname());
+		map.put("spring.cloud.client.ip-address", hostInfo.getIpAddress());
+		MapPropertySource propertySource = new MapPropertySource(
+				"springCloudClientHostInfo", map);
+		environment.getPropertySources().addLast(propertySource);
+	}
+
+	private HostInfo getFirstNonLoopbackHostInfo(ConfigurableEnvironment environment) {
+		InetUtilsProperties target = new InetUtilsProperties();
+		ConfigurationPropertySources.attach(environment);
+		Binder.get(environment).bind(InetUtilsProperties.PREFIX,
+				Bindable.ofInstance(target));
+		try (InetUtils utils = new InetUtils(target)) {
+			return utils.findFirstNonLoopbackHostInfo();
+		}
+	}
+}
+```
+
+
 
 #### InetUtils
 

@@ -1,0 +1,35 @@
+#spring:
+#  cloud:
+#    config:
+#      discovery:
+#        enabled: true
+#        service-id: springcloud-config-sever
+#      uri:
+#      name: springcloud-feign-hello
+#      profile:
+#      label:
+
+# info 信息,springboot 将占位符修改为@...@格式
+info:
+  app:
+    groupId: @project.groupId@
+    artifactId: @project.artifactId@
+    version: @project.version@
+
+spring:
+  application:
+    name: @project.artifactId@
+  cloud:
+    inetutils:
+      ignored-interfaces: docker.*,veth.*,.*Virtual.*
+
+server:
+  port: 9091
+
+# eureka 注册中心
+eureka:
+  instance:
+    prefer-ip-address: true
+  client:
+    service-url:
+      defaultZone: http://127.0.0.1:8761/eureka/

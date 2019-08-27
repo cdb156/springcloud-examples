@@ -8,14 +8,17 @@
         <version>0.0.1</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-    <packaging>pom</packaging>
 
     <groupId>cn.selinx</groupId>
-    <artifactId>springcloud-server-consumer</artifactId>
+    <artifactId>springcloud-config-module</artifactId>
     <version>0.0.1</version>
-
     <modules>
-        <module>springcloud-feign-hello</module>
+        <module>springcloud-config-server</module>
     </modules>
+    <packaging>pom</packaging>
+
+    <name>SpringCloud Config Module</name>
+    <description>微服务的配置中心</description>
+
 
 </project>

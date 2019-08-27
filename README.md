@@ -6,6 +6,8 @@ Spring Cloud 微服务示例
 * 通过轻量级API调用服务
 * 服务需保证良好的高可用
 
+![diagram-distributed-systems](images/diagram-distributed-systems.svg)
+
 ## 一、工程说明
 
 ### 模块说明
