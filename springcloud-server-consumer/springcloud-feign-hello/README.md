@@ -1,11 +1,21 @@
 spring-cloud-openfeign
 ====================
 
-官方文档：
+官方github地址: [https://github.com/OpenFeign/feign](https://github.com/OpenFeign/feign)
 
-[https://cloud.spring.io/spring-cloud-static/spring-cloud-openfeign/2.0.4.RELEASE/](https://cloud.spring.io/spring-cloud-static/spring-cloud-openfeign/2.0.4.RELEASE/)
+官方文档
 
-[https://github.com/OpenFeign/feign](https://github.com/OpenFeign/feign)
+- `Greenwich.SR2`
+
+  [https://cloud.spring.io/spring-cloud-static/spring-cloud-openfeign/2.1.2.RELEASE/](https://cloud.spring.io/spring-cloud-static/spring-cloud-openfeign/2.1.2.RELEASE/)
+
+- `SpringCloud：Finchley SR4`
+
+  [https://cloud.spring.io/spring-cloud-static/spring-cloud-openfeign/2.0.4.RELEASE/](https://cloud.spring.io/spring-cloud-static/spring-cloud-openfeign/2.0.4.RELEASE/)
+
+  
+
+前提知识：`bootstrap context ` 引入了`spring-cloud-context` 这个包就会被创建
 
 ## OpenFeign教程	
 
@@ -524,9 +534,9 @@ public abstract class Feign {
 
 
 
+## EurekaClient教程
 
 
-## EurekaClient注解
 
 
 

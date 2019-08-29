@@ -1,3 +1,11 @@
+# 如果放在bootstrap.yml ，占位符使用{}
+# 如果放在application.yml，占位符使用@@
+info:
+  app:
+    groupId: {project.groupId}
+    artifactId: {project.artifactId}
+    version: {project.version}
+
 spring:
   application:
     name: springcloud-config-sever
@@ -27,7 +35,7 @@ eureka:
     prefer-ip-address: true
   client:
     service-url:
-      defaultZone: http://127.0.0.1:8761/eureka/
+      defaultZone: http://eureka.cloud:8761/eureka/
 
 
 # git 方式

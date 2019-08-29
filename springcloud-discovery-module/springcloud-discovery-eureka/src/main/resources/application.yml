@@ -1,9 +1,9 @@
 # info 信息,springboot 将占位符修改为@...@格式
 info:
   app:
-    groupId: @project.groupId@
-    artifactId: @project.artifactId@
-    version: @project.version@
+    groupId: cn.selinx
+    artifactId: springcloud-eureka-server
+    version: 0.0.1
 
 # 默认模式：端口 8761
 server:
@@ -33,6 +33,10 @@ eureka:
 spring:
   profiles: singleton
 
+info:
+  app:
+    name: singleton
+
 server:
   port: 8080
 
@@ -40,48 +44,55 @@ eureka:
   client:
     service-url:
       defaultZone: http://localhost:8080/eureka/
-
+  server:
+    enable-self-preservation: false
 
 
 ######--------集群模式-------######
 ---
+info:
+  app:
+    name: cluster-1
+
 spring:
   profiles: cluster-1
-  application:
-    name: @project.artifactId@-1
 
 server:
   port: 8761
 
 eureka:
+  instance:
+    hostname: master.docker
   client:
     service-url:
-      defaultZone: http://localhost:8761/eureka/,http://localhost:8762/eureka/,http://localhost:8763/eureka/
+      defaultZone: http://master.docker:8761/eureka/,http://master.docker:8762/eureka/,http://master.docker:8763/eureka/
 
 ---
 spring:
   profiles: cluster-2
-  application:
-    name: @project.artifactId@-2
+
 
 server:
   port: 8762
 
 eureka:
+  instance:
+    hostname: master.docker
   client:
     service-url:
-      defaultZone: http://localhost:8761/eureka/,http://localhost:8762/eureka/,http://localhost:8763/eureka/
+      defaultZone: http://master.docker:8761/eureka/,http://master.docker:8762/eureka/,http://master.docker:8763/eureka/
 
 ---
 spring:
   profiles: cluster-3
-  application:
-    name: @project.artifactId@-3
+
 
 server:
   port: 8763
 
 eureka:
+  instance:
+    hostname: master.docker
   client:
     service-url:
-      defaultZone: http://localhost:8761/eureka/,http://localhost:8762/eureka/,http://localhost:8763/eureka/
+      defaultZone: http://master.docker:8761/eureka/,http://master.docker:8762/eureka/,http://master.docker:8763/eureka/

@@ -3,9 +3,17 @@ springcloud-config
 
 官方文档
 
-[https://cloud.spring.io/spring-cloud-static/spring-cloud-config/2.0.5.RELEASE/single/spring-cloud-config.html](https://cloud.spring.io/spring-cloud-static/spring-cloud-config/2.0.5.RELEASE/single/spring-cloud-config.html)
+* `Greenwich.SR2`
 
+  [https://cloud.spring.io/spring-cloud-static/spring-cloud-config/2.1.3.RELEASE/single/spring-cloud-config.html](https://cloud.spring.io/spring-cloud-static/spring-cloud-config/2.1.3.RELEASE/single/spring-cloud-config.html)
 
+* `SpringCloud：Finchley SR4`
+
+  [https://cloud.spring.io/spring-cloud-static/spring-cloud-config/2.0.5.RELEASE/single/spring-cloud-config.html](https://cloud.spring.io/spring-cloud-static/spring-cloud-config/2.0.5.RELEASE/single/spring-cloud-config.html)
+
+前提知识：`bootstrap context ` 引入了`spring-cloud-context` 这个包就会被创建.
+
+具体查看:[BootstrapApplicationListener](#BootstrapApplicationListener)
 
 ## 服务端源码分析
 
@@ -69,6 +77,53 @@ spring:
           search-locations: D:/config-file/config-repo-native/
           default-label: branch
 ```
+
+### 环境变量配置说明
+
+可以采用bootstrap.yml（存放固定信息）配置-会打包大jar里面，替换application.yml（存放变量信息）配置信息。
+
+运行时忽略网卡配置：`--spring.cloud.inetutils.ignoredInterfaces=docker.*,veth.*,.*Virtual.*`
+
+在Program arguments 输入上述参数。
+
+读取参数配置监听器有:
+
+```properties
+# spring-cloud-config-server-2.1.3.RELEASE.jar!\META-INF\spring.factories 
+# 配置： configServerClient
+org.springframework.context.ApplicationListener=\
+org.springframework.cloud.config.server.bootstrap.ConfigServerBootstrapApplicationListener 
+
+# 注意引入了bootstrap context这个概念，非常重要
+# spring-cloud-context-2.1.2.RELEASE.jar!\META-INF\spring.factories
+org.springframework.context.ApplicationListener=\
+org.springframework.cloud.bootstrap.BootstrapApplicationListener,\
+```
+
+environment环境变量配置排序：
+
+```properties
+# 命令行
+commandLineArgs: 类型是：SimpleCommandLinePropertySource，继承CommandLinePropertySource
+# servlet嵌入式容器
+servletConfigInitParams: 类型是： StubPropertySource，继承PropertySource抽象类
+servletContextInitParams: 类型是： StubPropertySource，继承PropertySource抽象类
+# java系统参数：jdk版本，系统版本，user.home，user.dir
+systemProperties: 类型是：PropertiesPropertySource，继承MapPropertySource
+# 主机环境变量配置：path,classpath,M2_HOME
+systemEnvironment: 类型是：SystemEnvironmentPropertySource，继承MapPropertySource
+# springcloud-config-server 分布式服务配置
+configServerClient: 类型是：MapPropertySource
+# 采用BootstrapApplicationListener 读取bootstap.yml 属性配置，
+# 内部启动StandardEnvironment合并到StandardServletEnvironment
+defaultProperties: 类型是：ExtendedDefaultPropertySource，继承SystemEnvironmentPropertySource
+```
+
+#### PropertySource<T> 抽象类子类
+
+使用 `@PropertySource`
+
+![PropertiesPropertySource](../../images/PropertiesPropertySource.png)
 
 
 
@@ -228,6 +283,8 @@ class CompositeRepositoryConfiguration {
 
 }
 ```
+
+
 
 ### API接口分析
 
@@ -397,6 +454,243 @@ public class NativeEnvironmentRepository
 	}
 }	
 ```
+
+
+
+### BootstrapApplicationListener
+
+spring-cloud-context包内，读取`bootstrap.properties/yml` 配置文件。开启一个spring application上下文处理。
+
+```java
+/**
+ * A listener that prepares a SpringApplication (e.g. populating its Environment) by
+ * delegating to {@link ApplicationContextInitializer} beans in a separate bootstrap
+ * context. The bootstrap context is a SpringApplication created from sources defined in
+ * spring.factories as {@link BootstrapConfiguration}, and initialized with external
+ * config taken from "bootstrap.properties" (or yml), instead of the normal
+ * "application.properties".
+ *
+ * @author Dave Syer
+ *
+ */
+public class BootstrapApplicationListener
+		implements ApplicationListener<ApplicationEnvironmentPreparedEvent>, Ordered {
+
+	/**
+	 * Property source name for bootstrap.
+	 */
+	public static final String BOOTSTRAP_PROPERTY_SOURCE_NAME = "bootstrap";
+
+	/**
+	 * The default order for this listener.
+	 */
+	public static final int DEFAULT_ORDER = Ordered.HIGHEST_PRECEDENCE + 5;
+
+	/**
+	 * The name of the default properties.
+	 */
+	public static final String DEFAULT_PROPERTIES = "defaultProperties";
+
+	private int order = DEFAULT_ORDER;
+
+	@Override
+	public void onApplicationEvent(ApplicationEnvironmentPreparedEvent event) {
+		ConfigurableEnvironment environment = event.getEnvironment();
+		if (!environment.getProperty("spring.cloud.bootstrap.enabled", Boolean.class,
+				true)) {
+			return;
+		}
+		// don't listen to events in a bootstrap context
+		if (environment.getPropertySources().contains(BOOTSTRAP_PROPERTY_SOURCE_NAME)) {
+			return;
+		}
+		ConfigurableApplicationContext context = null;
+		String configName = environment
+				.resolvePlaceholders("${spring.cloud.bootstrap.name:bootstrap}");
+		// 开启BootstrapService上下文
+		context = bootstrapServiceContext(environment, event.getSpringApplication(),
+					configName);
+		event.getSpringApplication()
+					.addListeners(new CloseContextOnFailureApplicationListener(context));
+		
+
+		apply(context, event.getSpringApplication(), environment);
+	}
+
+
+
+	private ConfigurableApplicationContext bootstrapServiceContext(
+			ConfigurableEnvironment environment, final SpringApplication application,
+			String configName) {
+		StandardEnvironment bootstrapEnvironment = new StandardEnvironment();
+		MutablePropertySources bootstrapProperties = bootstrapEnvironment
+				.getPropertySources();
+		for (PropertySource<?> source : bootstrapProperties) {
+			bootstrapProperties.remove(source.getName());
+		}
+		String configLocation = environment
+				.resolvePlaceholders("${spring.cloud.bootstrap.location:}");
+		Map<String, Object> bootstrapMap = new HashMap<>();
+		bootstrapMap.put("spring.config.name", configName);
+		
+		bootstrapMap.put("spring.main.web-application-type", "none");
+		if (StringUtils.hasText(configLocation)) {
+			bootstrapMap.put("spring.config.location", configLocation);
+		}
+		bootstrapProperties.addFirst(
+				new MapPropertySource(BOOTSTRAP_PROPERTY_SOURCE_NAME, bootstrapMap));
+		for (PropertySource<?> source : environment.getPropertySources()) {
+			if (source instanceof StubPropertySource) {
+				continue;
+			}
+			bootstrapProperties.addLast(source);
+		}
+		// 启动一个新的SpringApplication，获取上下文，配置信息
+		SpringApplicationBuilder builder = new SpringApplicationBuilder()
+				.profiles(environment.getActiveProfiles()).bannerMode(Mode.OFF)
+				.environment(bootstrapEnvironment)
+				.registerShutdownHook(false).logStartupInfo(false)
+				.web(WebApplicationType.NONE);
+		final SpringApplication builderApplication = builder.application();
+		if (builderApplication.getMainApplicationClass() == null) {
+		
+			builder.main(application.getMainApplicationClass());
+		}
+		if (environment.getPropertySources().contains("refreshArgs")) {
+
+			builderApplication
+					.setListeners(filterListeners(builderApplication.getListeners()));
+		}
+        // Bootstrap Context 设置启动类
+		builder.sources(BootstrapImportSelectorConfiguration.class);
+		final ConfigurableApplicationContext context = builder.run();
+		
+		context.setId("bootstrap");
+		addAncestorInitializer(application, context);
+		bootstrapProperties.remove(BOOTSTRAP_PROPERTY_SOURCE_NAME);
+		mergeDefaultProperties(environment.getPropertySources(), bootstrapProperties);
+		return context;
+	}
+
+	private Collection<? extends ApplicationListener<?>> filterListeners(
+			Set<ApplicationListener<?>> listeners) {
+		Set<ApplicationListener<?>> result = new LinkedHashSet<>();
+		for (ApplicationListener<?> listener : listeners) {
+			if (!(listener instanceof LoggingApplicationListener)
+					&& !(listener instanceof LoggingSystemShutdownListener)) {
+				result.add(listener);
+			}
+		}
+		return result;
+	}
+
+	private void mergeDefaultProperties(MutablePropertySources environment,
+			MutablePropertySources bootstrap) {
+		String name = DEFAULT_PROPERTIES;
+		...
+		mergeAdditionalPropertySources(environment, bootstrap);
+	}
+
+	private void mergeAdditionalPropertySources(MutablePropertySources environment,
+			MutablePropertySources bootstrap) {
+		addOrReplace(environment, result);
+		addOrReplace(bootstrap, result);
+	}
+
+	private void addOrReplace(MutablePropertySources environment,
+			PropertySource<?> result) {
+		if (environment.contains(result.getName())) {
+			environment.replace(result.getName(), result);
+		}
+		else {
+			environment.addLast(result);
+		}
+	}
+
+	private void addAncestorInitializer(SpringApplication application,
+			ConfigurableApplicationContext context) {
+		boolean installed = false;
+		for (ApplicationContextInitializer<?> initializer : application
+				.getInitializers()) {
+			if (initializer instanceof AncestorInitializer) {
+				installed = true;
+				// New parent
+				((AncestorInitializer) initializer).setParent(context);
+			}
+		}
+		if (!installed) {
+			application.addInitializers(new AncestorInitializer(context));
+		}
+
+	}
+
+	private void apply(ConfigurableApplicationContext context,
+			SpringApplication application, ConfigurableEnvironment environment) {
+
+
+		addBootstrapDecryptInitializer(application);
+	}
+
+	private void addBootstrapDecryptInitializer(SpringApplication application) {
+		DelegatingEnvironmentDecryptApplicationInitializer decrypter = null;
+		for (ApplicationContextInitializer<?> ini : application.getInitializers()) {
+			if (ini instanceof EnvironmentDecryptApplicationInitializer) {
+				@SuppressWarnings("unchecked")
+				ApplicationContextInitializer del = (ApplicationContextInitializer) ini;
+				decrypter = new DelegatingEnvironmentDecryptApplicationInitializer(del);
+			}
+		}
+		if (decrypter != null) {
+			application.addInitializers(decrypter);
+		}
+	}
+
+
+
+	private static class AncestorInitializer implements
+			ApplicationContextInitializer<ConfigurableApplicationContext>, Ordered {
+
+		private ConfigurableApplicationContext parent;
+		...
+
+	}
+
+	/**
+	 * A special initializer designed to run before the property source bootstrap and
+	 * decrypt any properties needed there (e.g. URL of config server).
+	 */
+	@Order(Ordered.HIGHEST_PRECEDENCE + 9)
+	private static class DelegatingEnvironmentDecryptApplicationInitializer
+			implements ApplicationContextInitializer<ConfigurableApplicationContext> {
+
+		...
+
+	}
+
+	private static class ExtendedDefaultPropertySource
+			extends SystemEnvironmentPropertySource {
+
+		private final CompositePropertySource sources;
+
+		...
+	
+	}
+
+	private static class CloseContextOnFailureApplicationListener
+			implements SmartApplicationListener {
+		...
+
+	}
+
+}
+
+```
+
+#### bootstrap.yml 读取
+
+![springcloud-config-server-启动分析.png](../../images/springcloud-config-server-启动分析.png)
+
+
 
 ### EnvironmentRepository
 

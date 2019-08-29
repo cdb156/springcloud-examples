@@ -1141,6 +1141,12 @@ boolean renew() {
 }
 ```
 
+#### 客户端刷新注册信息：refreshRegistry
+
+拉取eureka server的数据到本地内存：fetchRegistry --》getAndStoreFullRegistry。 默认30秒同步一次
+
+
+
 
 
 ### EurekaHttpClient
